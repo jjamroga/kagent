@@ -167,7 +167,7 @@ type ExtensionConfig struct {
 	MCPServerPlugins []mcp_translator.TranslatorPlugin
 }
 
-type GetExtensionConfig func(bootstrap BootstrapConfig) (*ExtensionConfig, error)
+type GetExtensionConfig func(config *rest.Config, bootstrap BootstrapConfig) (*ExtensionConfig, error)
 
 func Start(getExtensionConfig GetExtensionConfig, managerFactory ManagerFactory, config *rest.Config) {
 	var tlsOpts []func(*tls.Config)
@@ -317,7 +317,7 @@ func Start(getExtensionConfig GetExtensionConfig, managerFactory ManagerFactory,
 
 	dbClient := database.NewClient(dbManager)
 	router := mux.NewRouter()
-	extensionCfg, err := getExtensionConfig(BootstrapConfig{
+	extensionCfg, err := getExtensionConfig(config, BootstrapConfig{
 		Ctx:     ctx,
 		Manager: mgr,
 		Router:  router,

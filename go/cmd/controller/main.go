@@ -23,6 +23,7 @@ import (
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 )
 
@@ -32,7 +33,7 @@ func main() {
 	authenticator := &auth.UnsecureAuthenticator{}
 	managerFactory := app.NewManagerFactory()
 	restCfg := config.GetConfigOrDie()
-	app.Start(func(bootstrap app.BootstrapConfig) (*app.ExtensionConfig, error) {
+	app.Start(func(config *rest.Config, bootstrap app.BootstrapConfig) (*app.ExtensionConfig, error) {
 		return &app.ExtensionConfig{
 			Authenticator:    authenticator,
 			Authorizer:       authorizer,
