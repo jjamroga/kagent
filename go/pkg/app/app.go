@@ -70,6 +70,7 @@ import (
 	"github.com/kagent-dev/kagent/go/internal/goruntime"
 	"github.com/kagent-dev/kmcp/api/v1alpha1"
 	// +kubebuilder:scaffold:imports
+	"sigs.k8s.io/controller-runtime/pkg/client/config"
 )
 
 var (
@@ -168,7 +169,7 @@ type ExtensionConfig struct {
 
 type GetExtensionConfig func(bootstrap BootstrapConfig) (*ExtensionConfig, error)
 
-func Start(getExtensionConfig GetExtensionConfig) {
+func Start(getExtensionConfig GetExtensionConfig, managerFactory ManagerFactory) {
 	var tlsOpts []func(*tls.Config)
 	var cfg Config
 
@@ -267,6 +268,27 @@ func Start(getExtensionConfig GetExtensionConfig) {
 	// filter out invalid namespaces from the watchNamespaces flag (comma separated list)
 	watchNamespacesList := filterValidNamespaces(strings.Split(cfg.WatchNamespaces, ","))
 
+	mgr, err := managerFactory.CreateManager(config.GetConfigOrDie(), ctrl.Options{
+		Scheme:                 scheme,
+		Metrics:                metricsServerOptions,
+		HealthProbeBindAddress: cfg.ProbeAddr,
+		LeaderElection:         cfg.LeaderElection,
+		LeaderElectionID:       "0e9f6799.kagent.dev",
+		Cache: cache.Options{
+			DefaultNamespaces: configureNamespaceWatching(watchNamespacesList),
+		},
+		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
+		// when the Manager ends. This requires the binary to immediately end when the
+		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly
+		// speeds up voluntary leader transitions as the new leader don't have to wait
+		// LeaseDuration time first.
+		//
+		// In the default scaffold provided, the program ends immediately after
+		// the manager stops, so would be fine to enable this option. However,
+		// if you are doing or is intended to do any operation such as perform cleanups
+		// after the manager stops then its usage might be unsafe.
+		// LeaderElectionReleaseOnCancel: true,
+	})
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
 		Metrics:                metricsServerOptions,

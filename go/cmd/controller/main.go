@@ -29,6 +29,7 @@ import (
 func main() {
 	authorizer := &auth.NoopAuthorizer{}
 	authenticator := &auth.UnsecureAuthenticator{}
+	managerFactory := app.NewManagerFactory()
 	app.Start(func(bootstrap app.BootstrapConfig) (*app.ExtensionConfig, error) {
 		return &app.ExtensionConfig{
 			Authenticator:    authenticator,
@@ -36,5 +37,5 @@ func main() {
 			AgentPlugins:     nil,
 			MCPServerPlugins: nil,
 		}, nil
-	})
+	}, managerFactory)
 }
