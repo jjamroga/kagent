@@ -70,7 +70,7 @@ import (
 	"github.com/kagent-dev/kagent/go/internal/goruntime"
 	"github.com/kagent-dev/kmcp/api/v1alpha1"
 	// +kubebuilder:scaffold:imports
-	"sigs.k8s.io/controller-runtime/pkg/client/config"
+	"k8s.io/client-go/rest"
 )
 
 var (
@@ -169,7 +169,7 @@ type ExtensionConfig struct {
 
 type GetExtensionConfig func(bootstrap BootstrapConfig) (*ExtensionConfig, error)
 
-func Start(getExtensionConfig GetExtensionConfig, managerFactory ManagerFactory) {
+func Start(getExtensionConfig GetExtensionConfig, managerFactory ManagerFactory, restCfg *rest.Config) error {
 	var tlsOpts []func(*tls.Config)
 	var cfg Config
 
@@ -268,7 +268,7 @@ func Start(getExtensionConfig GetExtensionConfig, managerFactory ManagerFactory)
 	// filter out invalid namespaces from the watchNamespaces flag (comma separated list)
 	watchNamespacesList := filterValidNamespaces(strings.Split(cfg.WatchNamespaces, ","))
 
-	mgr, err := managerFactory.CreateManager(config.GetConfigOrDie(), ctrl.Options{
+	mgr, err := managerFactory.CreateManager(restCfg, ctrl.Options{
 		Scheme:                 scheme,
 		Metrics:                metricsServerOptions,
 		HealthProbeBindAddress: cfg.ProbeAddr,
