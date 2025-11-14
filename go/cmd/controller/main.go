@@ -25,6 +25,7 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
+	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 )
 
 // nolint:gocyclo
@@ -33,7 +34,8 @@ func main() {
 	authenticator := &auth.UnsecureAuthenticator{}
 	managerFactory := app.NewManagerFactory()
 	restCfg := config.GetConfigOrDie()
-	app.Start(func(config *rest.Config, bootstrap app.BootstrapConfig) (*app.ExtensionConfig, error) {
+	ctx := signals.SetupSignalHandler()
+	app.Start(ctx, func(config *rest.Config, bootstrap app.BootstrapConfig) (*app.ExtensionConfig, error) {
 		return &app.ExtensionConfig{
 			Authenticator:    authenticator,
 			Authorizer:       authorizer,

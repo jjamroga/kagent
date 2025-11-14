@@ -169,12 +169,9 @@ type ExtensionConfig struct {
 
 type GetExtensionConfig func(config *rest.Config, bootstrap BootstrapConfig) (*ExtensionConfig, error)
 
-func Start(getExtensionConfig GetExtensionConfig, managerFactory ManagerFactory, config *rest.Config) {
+func Start(ctx context.Context, getExtensionConfig GetExtensionConfig, managerFactory ManagerFactory, config *rest.Config) {
 	var tlsOpts []func(*tls.Config)
 	var cfg Config
-
-	// TODO setup signal handlers
-	ctx := context.Background()
 
 	cfg.SetFlags(flag.CommandLine)
 	flag.StringVar(&agent_translator.DefaultImageConfig.Registry, "image-registry", agent_translator.DefaultImageConfig.Registry, "The registry to use for the image.")
