@@ -197,6 +197,7 @@ go/bin/
 *.db
 .vscode/
 .cursor/rules
+.idea/
 
 ## Helm
 *.tgz
